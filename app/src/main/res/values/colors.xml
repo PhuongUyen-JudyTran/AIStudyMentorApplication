@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="study_blue_primary">#1E88E5</color>
+    <color name="study_blue_dark">#1565C0</color>
+    <color name="study_blue_light">#E3F2FD</color>
+    <color name="study_blue_extra_light">#F5F9FF</color>
+    <color name="gray_text">#757575</color>
+    <color name="gray_light">#F1F1F1</color>
+    <color name="yellow">#F6FCD8</color>
+</resources>
