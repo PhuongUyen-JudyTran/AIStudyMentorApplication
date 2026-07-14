@@ -44,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(MainActivity.this, "Signing in...", Toast.LENGTH_SHORT).show();
                 // Navigate to Home
-                //Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-               // startActivity(intent);
+                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                startActivity(intent);
                 finish();
             }
         });
@@ -53,11 +53,6 @@ public class MainActivity extends AppCompatActivity {
         btnSignUp.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
             startActivity(intent);
-        });
-
-        btnSignIn.setOnClickListener(v -> {
-         //   Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-          //  startActivity(intent);
         });
     }
 }

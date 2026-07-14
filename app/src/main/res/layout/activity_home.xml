@@ -5,8 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/study_blue_extra_light"
-    tools:context=".HomeActivity">
+    android:background="@color/study_blue_extra_light">
+<!--    tools:context=".HomeActivity">-->
 
     <!-- Header / Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
@@ -112,8 +112,18 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:padding="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/cvInputArea"
+        app:layout_constraintBottom_toTopOf="@+id/pbLoading"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+
+    <!-- Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/cvInputArea" />
 
     <!-- Modern Chat Input -->
     <com.google.android.material.card.MaterialCardView
@@ -181,7 +191,7 @@
         app:itemIconTint="@color/study_blue_primary"
         app:itemTextColor="@color/study_blue_primary"
         app:labelVisibilityMode="labeled"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
