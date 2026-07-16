@@ -6,7 +6,7 @@ plugins {
 android {
     namespace 'com.example.aistudymentorapplication'
     compileSdk {
-        version = release(36) {
+        version = release(37) {
             minorApiLevel = 1
         }
     }
@@ -19,6 +19,16 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        Properties properties = new Properties()
+        if (project.rootProject.file('local.properties').exists()) {
+            properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        }
+        buildConfigField "String", "GEMINI_API_KEY", "\"${properties.getProperty('GEMINI_API_KEY', '')}\""
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -55,4 +65,11 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.ext.junit
+
+    // Retrofit for Gemini API
+    implementation libs.retrofit
+    implementation libs.converter.gson
+    implementation libs.gson
+
+    // SQLite is built-in, no extra implementation needed for SQLiteOpenHelper
 }

@@ -100,7 +100,7 @@ public class SignInActivity extends AppCompatActivity {
                     // Move to Main Page
                     Intent intent = new Intent(
                             SignInActivity.this,
-                            SignUpActivity.class
+                            HomeActivity.class
                     );
 
                     startActivity(intent);
