@@ -1,0 +1,5 @@
+- [ ] Update `MainActivity.java` (Auth check & Redirect)
+- [ ] Update `SignInActivity.java` (Firebase Login logic)
+- [ ] Update `SignUpActivity.java` (Firebase Register logic)
+- [ ] Create `HomeActivity.java` (Post-login & Sign out)
+- [ ] Update `AndroidManifest.xml` (Register HomeActivity)

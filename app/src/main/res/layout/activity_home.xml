@@ -5,8 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/study_blue_extra_light"
-    tools:context=".HomeActivity">
+    android:background="@color/study_blue_extra_light">
+   <!--tools:context=".HomeActivity">-->
 
     <!-- Header / Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
@@ -181,7 +181,7 @@
         app:itemIconTint="@color/study_blue_primary"
         app:itemTextColor="@color/study_blue_primary"
         app:labelVisibilityMode="labeled"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:layout_constraintBottom_toBottomOf="parent" />
+       <!-- app:menu="@menu/bottom_nav_menu"-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
