@@ -2,7 +2,10 @@ package com.example.aistudymentorapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,10 +15,14 @@ import com.example.aistudymentorapplication.model.ChatSession;
 import com.example.aistudymentorapplication.repository.ChatRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.List;
+
+/**
+ * HistoryActivity displays the list of past chat sessions stored in SQLite.
+ */
 public class HistoryActivity extends AppCompatActivity {
 
     private RecyclerView rvHistory;
-    private FloatingActionButton btnNewChat;
     private SessionAdapter adapter;
     private ChatRepository repository;
 
@@ -25,16 +32,13 @@ public class HistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_history);
 
         rvHistory = findViewById(R.id.rvHistory);
-        btnNewChat = findViewById(R.id.btnNewChat);
+        FloatingActionButton btnNewChat = findViewById(R.id.btnNewChat);
 
         repository = new ChatRepository(getApplication());
         setupRecyclerView();
 
-        repository.getAllSessions().observe(this, sessions -> {
-            if (sessions != null) {
-                adapter.setSessions(sessions);
-            }
-        });
+        // Initial load of sessions
+        loadSessions();
 
         btnNewChat.setOnClickListener(v -> {
             Intent intent = new Intent(this, HomeActivity.class);
@@ -53,14 +57,14 @@ public class HistoryActivity extends AppCompatActivity {
             @Override
             public void onSessionClick(ChatSession session) {
                 Intent intent = new Intent(HistoryActivity.this, HomeActivity.class);
-                intent.putExtra("SESSION_ID", session.sessionId);
+                intent.putExtra("SESSION_ID", session.getSessionId());
                 startActivity(intent);
                 finish();
             }
 
             @Override
             public void onSessionDelete(ChatSession session) {
-                repository.deleteSession(session);
+                repository.deleteSession(session.getSessionId(), () -> loadSessions());
             }
 
             @Override
@@ -70,19 +74,36 @@ public class HistoryActivity extends AppCompatActivity {
         });
     }
 
+    private void loadSessions() {
+        repository.getAllSessions(sessions -> {
+            if (sessions != null) {
+                adapter.setSessions(sessions);
+            }
+        });
+    }
+
     private void showRenameDialog(ChatSession session) {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Rename Chat");
 
-        final android.widget.EditText input = new android.widget.EditText(this);
+        final EditText input = new EditText(this);
         input.setText(session.getTitle());
-        builder.setView(input);
+        
+        FrameLayout container = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT, 
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = params.rightMargin = 50; 
+        input.setLayoutParams(params);
+        container.addView(input);
+        builder.setView(container);
 
         builder.setPositiveButton("Rename", (dialog, which) -> {
             String newTitle = input.getText().toString().trim();
             if (!newTitle.isEmpty()) {
-                session.title = newTitle;
+                session.setTitle(newTitle);
                 repository.updateSession(session);
+                loadSessions(); // Refresh list
             }
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());

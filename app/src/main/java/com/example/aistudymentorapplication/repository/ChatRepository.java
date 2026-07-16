@@ -1,12 +1,10 @@
 package com.example.aistudymentorapplication.repository;
 
 import android.app.Application;
+import android.os.Handler;
+import android.os.Looper;
 
-import androidx.lifecycle.LiveData;
-
-import com.example.aistudymentorapplication.database.AppDatabase;
-import com.example.aistudymentorapplication.database.ChatMessageDao;
-import com.example.aistudymentorapplication.database.ChatSessionDao;
+import com.example.aistudymentorapplication.database.DatabaseHelper;
 import com.example.aistudymentorapplication.model.ChatMessage;
 import com.example.aistudymentorapplication.model.ChatSession;
 import com.example.aistudymentorapplication.network.GeminiApiClient;
@@ -22,64 +20,77 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * ChatRepository mediates between the UI, SQLite Database, and Gemini API.
+ */
 public class ChatRepository {
-    private ChatSessionDao sessionDao;
-    private ChatMessageDao messageDao;
+    private DatabaseHelper dbHelper;
     private GeminiApiService apiService;
     private ExecutorService executorService;
+    private Handler mainHandler;
 
     public ChatRepository(Application application) {
-        AppDatabase db = AppDatabase.getDatabase(application);
-        sessionDao = db.chatSessionDao();
-        messageDao = db.chatMessageDao();
+        dbHelper = new DatabaseHelper(application);
         apiService = GeminiApiClient.getApiService();
         executorService = Executors.newSingleThreadExecutor();
+        mainHandler = new Handler(Looper.getMainLooper());
     }
 
-    // Sessions
-    public LiveData<List<ChatSession>> getAllSessions() {
-        return sessionDao.getAllSessions();
+    // --- Session Operations ---
+
+    public void getAllSessions(OnDataLoadedListener<List<ChatSession>> listener) {
+        executorService.execute(() -> {
+            List<ChatSession> sessions = dbHelper.getAllSessions();
+            mainHandler.post(() -> listener.onLoaded(sessions));
+        });
     }
 
     public void createSession(ChatSession session, OnSessionCreatedListener listener) {
         executorService.execute(() -> {
-            long id = sessionDao.insert(session);
-            session.sessionId = id;
-            if (listener != null) listener.onCreated(id);
+            long id = dbHelper.insertSession(session);
+            session.setSessionId(id);
+            mainHandler.post(() -> {
+                if (listener != null) listener.onCreated(id);
+            });
         });
     }
 
     public void updateSession(ChatSession session) {
-        executorService.execute(() -> sessionDao.update(session));
+        executorService.execute(() -> dbHelper.updateSession(session));
     }
 
-    public void deleteSession(ChatSession session) {
+    public void deleteSession(long sessionId, Runnable onComplete) {
         executorService.execute(() -> {
-            messageDao.deleteMessagesForSession(session.sessionId);
-            sessionDao.delete(session);
+            dbHelper.deleteSession(sessionId);
+            if (onComplete != null) mainHandler.post(onComplete);
         });
     }
 
-    // Messages
-    public LiveData<List<ChatMessage>> getMessagesForSession(long sessionId) {
-        return messageDao.getMessagesForSession(sessionId);
+    // --- Message Operations ---
+
+    public void getMessagesForSession(long sessionId, OnDataLoadedListener<List<ChatMessage>> listener) {
+        executorService.execute(() -> {
+            List<ChatMessage> messages = dbHelper.getMessagesBySessionId(sessionId);
+            mainHandler.post(() -> listener.onLoaded(messages));
+        });
     }
 
     public void saveMessage(ChatMessage message) {
-        executorService.execute(() -> messageDao.insert(message));
+        executorService.execute(() -> dbHelper.insertMessage(message));
     }
 
     public void updateSessionTime(long sessionId) {
         executorService.execute(() -> {
-            ChatSession session = sessionDao.getSessionById(sessionId);
+            ChatSession session = dbHelper.getSessionById(sessionId);
             if (session != null) {
-                session.updatedAt = System.currentTimeMillis();
-                sessionDao.update(session);
+                session.setUpdatedAt(System.currentTimeMillis());
+                dbHelper.updateSession(session);
             }
         });
     }
 
-    // Gemini API
+    // --- Gemini API Operations ---
+
     public void getAiResponse(String apiKey, String prompt, OnResponseListener listener) {
         GeminiRequest request = new GeminiRequest(prompt);
         apiService.generateContent(apiKey, request).enqueue(new Callback<GeminiResponse>() {
@@ -88,7 +99,13 @@ public class ChatRepository {
                 if (response.isSuccessful() && response.body() != null) {
                     listener.onSuccess(response.body().getText());
                 } else {
-                    listener.onError("API Error: " + response.code());
+                    String errorMsg = "API Error: " + response.code();
+                    try {
+                        if (response.errorBody() != null) {
+                            errorMsg += " - " + response.errorBody().string();
+                        }
+                    } catch (Exception e) { /* Ignore */ }
+                    listener.onError(errorMsg);
                 }
             }
 
@@ -97,6 +114,10 @@ public class ChatRepository {
                 listener.onError("Network Failure: " + t.getMessage());
             }
         });
+    }
+
+    public interface OnDataLoadedListener<T> {
+        void onLoaded(T data);
     }
 
     public interface OnSessionCreatedListener {

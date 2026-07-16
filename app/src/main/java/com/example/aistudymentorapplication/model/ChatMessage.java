@@ -1,18 +1,26 @@
 package com.example.aistudymentorapplication.model;
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-
-@Entity(tableName = "chat_messages")
+/**
+ * ChatMessage model representing a single message in a session.
+ */
 public class ChatMessage {
-    @PrimaryKey(autoGenerate = true)
-    public long messageId;
-    public long sessionId;
-    public String sender; // "user" or "ai"
-    public String message;
-    public long timestamp;
+    private long messageId;
+    private long sessionId;
+    private String sender; // "user" or "ai"
+    private String message;
+    private long timestamp;
 
+    // Constructor for new message
     public ChatMessage(long sessionId, String sender, String message, long timestamp) {
+        this.sessionId = sessionId;
+        this.sender = sender;
+        this.message = message;
+        this.timestamp = timestamp;
+    }
+
+    // Constructor for message from database
+    public ChatMessage(long messageId, long sessionId, String sender, String message, long timestamp) {
+        this.messageId = messageId;
         this.sessionId = sessionId;
         this.sender = sender;
         this.message = message;

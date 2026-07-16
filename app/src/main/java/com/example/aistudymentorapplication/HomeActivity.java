@@ -18,6 +18,9 @@ import com.example.aistudymentorapplication.model.ChatSession;
 import com.example.aistudymentorapplication.repository.ChatRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+/**
+ * HomeActivity handles the main AI Chat interface using SQLite and Gemini API.
+ */
 public class HomeActivity extends AppCompatActivity {
 
     private RecyclerView rvChat;
@@ -64,11 +67,14 @@ public class HomeActivity extends AppCompatActivity {
         rvChat.setAdapter(adapter);
     }
 
+    /**
+     * Loads messages from SQLite and updates the RecyclerView.
+     */
     private void loadMessages() {
-        repository.getMessagesForSession(currentSessionId).observe(this, messages -> {
+        repository.getMessagesForSession(currentSessionId, messages -> {
             if (messages != null) {
                 adapter.setMessages(messages);
-                if (messages.size() > 0) {
+                if (!messages.isEmpty()) {
                     rvChat.smoothScrollToPosition(messages.size() - 1);
                 }
             }
@@ -83,14 +89,13 @@ public class HomeActivity extends AppCompatActivity {
         btnSend.setEnabled(false);
 
         if (currentSessionId == -1) {
+            // New Session: Generate title from first user message
             String title = text.length() > 30 ? text.substring(0, 27) + "..." : text;
             ChatSession session = new ChatSession(title, System.currentTimeMillis(), System.currentTimeMillis());
+            
             repository.createSession(session, sessionId -> {
                 currentSessionId = sessionId;
-                runOnUiThread(() -> {
-                    loadMessages(); // Start observing
-                    saveAndSend(text);
-                });
+                saveAndSend(text);
             });
         } else {
             saveAndSend(text);
@@ -98,21 +103,30 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void saveAndSend(String text) {
+        // Save user message
         ChatMessage userMsg = new ChatMessage(currentSessionId, "user", text, System.currentTimeMillis());
         repository.saveMessage(userMsg);
         repository.updateSessionTime(currentSessionId);
+        
+        // Update UI immediately for user message
+        adapter.addMessage(userMsg);
+        rvChat.smoothScrollToPosition(adapter.getItemCount() - 1);
 
         pbLoading.setVisibility(View.VISIBLE);
 
+        // Request AI response
         repository.getAiResponse(BuildConfig.GEMINI_API_KEY, text, new ChatRepository.OnResponseListener() {
             @Override
             public void onSuccess(String response) {
                 ChatMessage aiMsg = new ChatMessage(currentSessionId, "ai", response, System.currentTimeMillis());
                 repository.saveMessage(aiMsg);
                 repository.updateSessionTime(currentSessionId);
+                
                 runOnUiThread(() -> {
                     pbLoading.setVisibility(View.GONE);
                     btnSend.setEnabled(true);
+                    adapter.addMessage(aiMsg);
+                    rvChat.smoothScrollToPosition(adapter.getItemCount() - 1);
                 });
             }
 
