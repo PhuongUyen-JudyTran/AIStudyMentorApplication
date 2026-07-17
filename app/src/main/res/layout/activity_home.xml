@@ -160,7 +160,7 @@
                 android:background="@android:color/transparent"
                 android:hint="@string/hint_message"
                 android:importantForAutofill="no"
-                android:inputType="textCapSentences|textMultiLine"
+                android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textAutoComplete"
                 android:maxLines="4"
                 android:minHeight="48dp"
                 android:paddingHorizontal="8dp"
