@@ -1,0 +1,6 @@
+- [x] Add profile strings to `strings.xml`
+- [x] Implement `activity_profile.xml` layout
+- [x] Create `ProfileActivity.java` class
+- [x] Register `ProfileActivity` in `AndroidManifest.xml`
+- [x] Update navigation in `HomeActivity.java`
+- [x] Verify Profile page functionality

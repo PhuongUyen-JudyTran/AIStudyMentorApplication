@@ -23,4 +23,14 @@
     <string name="desc_send">Send message</string>
     <string name="desc_history">Chat History</string>
     <string name="desc_sign_out">Sign Out</string>
+
+    <!-- Profile strings -->
+    <string name="title_profile">Profile</string>
+    <string name="label_full_name">Full Name</string>
+    <string name="label_email">Email</string>
+    <string name="label_grade">Grade</string>
+    <string name="label_school">School</string>
+    <string name="btn_update_profile">Update Profile</string>
+    <string name="msg_profile_updated">Profile updated successfully!</string>
+    <string name="desc_back">Go back</string>
 </resources>
