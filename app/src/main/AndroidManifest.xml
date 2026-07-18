@@ -28,6 +28,7 @@
         <activity android:name=".HomeActivity" />
         <activity android:name=".HistoryActivity" />
         <activity android:name=".ProfileActivity" />
+        <activity android:name=".QuizActivity" />
     </application>
 
 </manifest>

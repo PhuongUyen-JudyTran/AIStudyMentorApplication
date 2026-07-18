@@ -24,6 +24,32 @@
     <string name="desc_history">Chat History</string>
     <string name="desc_sign_out">Sign Out</string>
 
+    <!-- Quiz strings -->
+    <string name="title_quiz">Quiz</string>
+    <string name="btn_next">Next</string>
+    <string name="btn_finish">Finish</string>
+    <string name="msg_quiz_completed">Quiz Completed!</string>
+    <string name="msg_score">Your Score: %1$d/%2$d</string>
+    <string name="btn_back_home">Back to Home</string>
+    <string name="label_question">Question %1$d</string>
+    <string name="label_choose_level">Choose Level</string>
+    <string name="label_select_subject">Select Subject</string>
+    <string name="btn_create_quiz">Create Quiz</string>
+    <string name="level_1">Grade 1_5</string>
+    <string name="level_2">Grade 6_9</string>
+    <string name="level_3">Grade 10_12</string>
+    <string name="subject_math">Math</string>
+    <string name="subject_science">Science</string>
+    <string name="subject_history">History</string>
+    <string name="subject_english">English</string>
+    <string name="title_quiz_result">Quiz Result</string>
+    <string name="label_congratulations">Congratulations!</string>
+    <string name="label_score_detail">You scored %1$d out of %2$d</string>
+    <string name="btn_back_to_home">Back to Home</string>
+    <string name="label_timer">Time: %1$02d:%2$02d</string>
+    <string name="msg_out_of_time">Out of time!</string>
+
+
     <!-- Profile strings -->
     <string name="title_profile">Profile</string>
     <string name="label_full_name">Full Name</string>

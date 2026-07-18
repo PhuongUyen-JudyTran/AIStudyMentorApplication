@@ -169,11 +169,13 @@ public class HomeActivity extends AppCompatActivity {
             } else if (id == R.id.nav_history) {
                 startActivity(new Intent(HomeActivity.this, HistoryActivity.class));
                 return true;
+            } else if (id == R.id.nav_quiz) {
+                startActivity(new Intent(HomeActivity.this, QuizActivity.class));
+                return true;
             } else if (id == R.id.nav_profile) {
                 startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
                 return true;
             }
-
             return false;
         });
     }
