@@ -5,59 +5,56 @@ import java.util.List;
 
 /**
  * GeminiRequest defines the JSON structure for the Google Gemini API.
- * Includes support for system instructions and user content with roles.
+ * Updated to support generation configuration and conversational history.
  */
 public class GeminiRequest {
     public List<Content> contents;
     public Content system_instruction;
+    public GenerationConfig generationConfig;
 
-    public GeminiRequest(String text, String systemPrompt) {
+    /**
+     * Constructor for multi-turn conversations with history.
+     */
+    public GeminiRequest(List<com.example.aistudymentorapplication.model.ChatMessage> history, String systemPrompt) {
         this.contents = new ArrayList<>();
-        // For Gemini API, user messages must have the "user" role
-        this.contents.add(new Content("user", text));
-        
+        for (com.example.aistudymentorapplication.model.ChatMessage msg : history) {
+            String role = "user".equals(msg.getSender()) ? "user" : "model";
+            this.contents.add(new Content(role, msg.getMessage()));
+        }
+
         if (systemPrompt != null && !systemPrompt.isEmpty()) {
-            // System instructions should NOT have a role field
             this.system_instruction = new Content(null, systemPrompt);
         }
+
+        // Improvement #1: Set stable generation config for education
+        this.generationConfig = new GenerationConfig();
     }
 
     public static class Content {
-        public String role; // "user" or null for system_instruction
+        public String role; 
         public List<Part> parts;
 
-        // Constructor for system_instruction (no role) or user content
         public Content(String role, String text) {
             this.role = role;
             this.parts = new ArrayList<>();
             this.parts.add(new Part(text));
         }
-
-        public static class Builder {
-            private String textContent;
-            private String role;
-
-            public Builder addText(String text) {
-                this.textContent = text;
-                return this;
-            }
-
-            public Builder setRole(String role) {
-                this.role = role;
-                return this;
-            }
-
-            public Content build() {
-                return new Content(role, textContent);
-            }
-        }
     }
 
     public static class Part {
         public String text;
-
         public Part(String text) {
             this.text = text;
         }
+    }
+
+    /**
+     * Configuration class to control AI output behavior.
+     */
+    public static class GenerationConfig {
+        public float temperature = 0.4f; // Lower temperature = more factual and consistent
+        public int topK = 40;
+        public float topP = 0.95f;
+        public int maxOutputTokens = 2048; // Ensure long enough answers for explanations
     }
 }

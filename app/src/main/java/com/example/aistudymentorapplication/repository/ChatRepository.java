@@ -141,28 +141,49 @@ public class ChatRepository {
             "- Answer superficially or only provide the answer without explanation.\n\n" +
             "If the student does not specify their grade, guess from the content of the question and answer at an appropriate level.";
 
-    public void getAiResponse(String apiKey, String prompt, OnResponseListener listener) {
-        GeminiRequest request = new GeminiRequest(prompt, SYSTEM_INSTRUCTION);
-        apiService.generateContent(apiKey, request).enqueue(new Callback<GeminiResponse>() {
-            @Override
-            public void onResponse(Call<GeminiResponse> call, Response<GeminiResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    listener.onSuccess(response.body().getText());
-                } else {
-                    String errorMsg = "API Error: " + response.code();
-                    try {
-                        if (response.errorBody() != null) {
-                            errorMsg += " - " + response.errorBody().string();
-                        }
-                    } catch (Exception e) { /* Ignore */ }
-                    listener.onError(errorMsg);
-                }
+    /**
+     * Makes an asynchronous call to Gemini API with full conversation context.
+     * Improvement #2: Implements a sliding window for history to optimize performance.
+     */
+    public void getAiResponse(String apiKey, long sessionId, String currentPrompt, OnResponseListener listener) {
+        executorService.execute(() -> {
+            // 1. Fetch history from SQLite
+            List<ChatMessage> fullHistory = dbHelper.getMessagesBySessionId(sessionId);
+            
+            // 2. Limit history to the last 10 messages to keep context efficient
+            List<ChatMessage> optimizedHistory;
+            if (fullHistory.size() > 10) {
+                optimizedHistory = fullHistory.subList(fullHistory.size() - 10, fullHistory.size());
+            } else {
+                optimizedHistory = fullHistory;
             }
+            
+            // 3. Prepare the Request with context + system instruction
+            GeminiRequest request = new GeminiRequest(optimizedHistory, SYSTEM_INSTRUCTION);
 
-            @Override
-            public void onFailure(Call<GeminiResponse> call, Throwable t) {
-                listener.onError("Network Failure: " + t.getMessage());
-            }
+            // 4. Make the API call
+            apiService.generateContent(apiKey, request).enqueue(new Callback<GeminiResponse>() {
+                @Override
+                public void onResponse(Call<GeminiResponse> call, Response<GeminiResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        mainHandler.post(() -> listener.onSuccess(response.body().getText()));
+                    } else {
+                        String errorMsg = "API Error: " + response.code();
+                        try {
+                            if (response.errorBody() != null) {
+                                errorMsg += " - " + response.errorBody().string();
+                            }
+                        } catch (Exception e) { /* Ignore */ }
+                        String finalErrorMsg = errorMsg;
+                        mainHandler.post(() -> listener.onError(finalErrorMsg));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<GeminiResponse> call, Throwable t) {
+                    mainHandler.post(() -> listener.onError("Network Failure: " + t.getMessage()));
+                }
+            });
         });
     }
 
