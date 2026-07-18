@@ -56,6 +56,14 @@ public class HomeActivity extends AppCompatActivity {
         btnSignOut.setOnClickListener(v -> signOut());
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (bottomNavigation != null) {
+            bottomNavigation.setSelectedItemId(R.id.nav_chat);
+        }
+    }
+
     private void initViews() {
         rvChat = findViewById(R.id.rvChat);
         etMessage = findViewById(R.id.etMessage);
