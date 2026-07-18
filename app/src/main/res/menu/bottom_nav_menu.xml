@@ -5,13 +5,13 @@
         android:icon="@android:drawable/ic_menu_send"
         android:title="@string/menu_chat" />
     <item
+        android:id="@+id/nav_history"
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:title="History" />
+    <item
         android:id="@+id/nav_quiz"
         android:icon="@android:drawable/ic_menu_help"
         android:title="@string/menu_quiz" />
-    <item
-        android:id="@+id/nav_progress"
-        android:icon="@android:drawable/ic_menu_sort_by_size"
-        android:title="@string/menu_progress" />
     <item
         android:id="@+id/nav_profile"
         android:icon="@android:drawable/ic_menu_myplaces"

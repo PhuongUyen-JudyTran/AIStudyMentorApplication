@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -24,6 +26,7 @@ public class SignInActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
     private Button btnSignIn, btnSignUp;
+    private TextView tvError;
     private FirebaseAuth mAuth;
 
     // Email and Password demo
@@ -51,6 +54,7 @@ public class SignInActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnSignIn = findViewById(R.id.btnSignIn);
         btnSignUp = findViewById(R.id.btnSignUp);
+        tvError = findViewById(R.id.tvError);
 
         btnSignIn.setOnClickListener(v -> signInUser());
 
@@ -64,113 +68,120 @@ public class SignInActivity extends AppCompatActivity {
     }
 
 
-        private void signInUser() {
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
+    private void signInUser() {
+        tvError.setText("");
+        tvError.setVisibility(View.GONE);
 
-            //Verify
-            if (email.isEmpty()) {
-                etEmail.setError("Please enter your email");
-                etEmail.requestFocus();
-                return;
-            }
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
 
-            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                etEmail.setError("Invalid email format");
-                etEmail.requestFocus();
-                return;
-            }
-
-            if (password.isEmpty()) {
-                etPassword.setError("Please enter your password");
-                etPassword.requestFocus();
-                return;
-            }
-
-            btnSignIn.setEnabled(false);
-
-            mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
-            btnSignIn.setEnabled(true);
-            if (task.isSuccessful()) {
-                FirebaseUser user = mAuth.getCurrentUser();
-                if (user != null) {
-                    Toast.makeText(SignInActivity.this, "Sign in successful", Toast.LENGTH_SHORT).show();
-                    Log.d("SignIn", "Signed in user: " + user.getEmail());
-
-                    // Move to Main Page
-                    Intent intent = new Intent(
-                            SignInActivity.this,
-                            HomeActivity.class
-                    );
-
-                    startActivity(intent);
-                    finish();
-                }
-            } else {
-                handleSignInError(task.getException());
-            }
-            });
+        if (email.isEmpty()) {
+            showError("Please enter your email");
+            etEmail.requestFocus();
+            return;
         }
 
-            private void handleSignInError(Exception exception) {
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            showError("Invalid email format");
+            etEmail.requestFocus();
+            return;
+        }
 
-                if (exception == null) {
-                    Toast.makeText(SignInActivity.this, "Sign in failed", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Log.e("SignIn", "Sign in failed", exception);
+        if (password.isEmpty()) {
+            showError("Please enter your password");
+            etPassword.requestFocus();
+            return;
+        }
 
-                if (exception instanceof FirebaseAuthInvalidUserException) {
+        btnSignIn.setEnabled(false);
 
-                    FirebaseAuthException authException =
-                            (FirebaseAuthException) exception;
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
 
-                    String errorCode = authException.getErrorCode();
+                    btnSignIn.setEnabled(true);
 
-                    if ("ERROR_USER_NOT_FOUND".equals(errorCode)) {
-                        etEmail.setError("Account does not exist");
-                        etEmail.requestFocus();
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
 
-                    }
-                        else {
+                        if (user != null) {
+                            tvError.setVisibility(View.GONE);
 
                             Toast.makeText(
                                     SignInActivity.this,
-                                    "Invalid user account",
+                                    "Sign in successful",
                                     Toast.LENGTH_SHORT
                             ).show();
+
+                            Intent intent = new Intent(
+                                    SignInActivity.this,
+                                    HomeActivity.class
+                            );
+
+                            startActivity(intent);
+                            finish();
                         }
 
-                // Email and Password Error
-                } else if (exception instanceof FirebaseAuthInvalidCredentialsException) {
-                    FirebaseAuthException authException = (FirebaseAuthException) exception;
-                    String errorCode = authException.getErrorCode();
-
-                    if ("ERROR_INVALID_EMAIL".equals(errorCode)) {
-
-                        etEmail.setError("Invalid email format");
-                        etEmail.requestFocus();
-
-                    } else if ("ERROR_WRONG_PASSWORD".equals(errorCode)) {
-
-                        etPassword.setError("Incorrect password");
-                        etPassword.requestFocus();
-
                     } else {
-
-                        Toast.makeText(
-                                SignInActivity.this,
-                                "Email or password is incorrect",
-                                Toast.LENGTH_SHORT
-                        ).show();
+                        showError("Email or password is incorrect");
+                        Log.e("SignIn", "Sign in failed", task.getException()
+                        );
                     }
+                });
+    }
 
-                } else {
-                    Toast.makeText(
-                            SignInActivity.this,
-                            "Error: " + exception.getMessage(),
-                            Toast.LENGTH_SHORT
-                    ).show();
-                }
+            private void showError(String message) {
+                tvError.setText(message);
+                tvError.setVisibility(View.VISIBLE);
+            }
+
+    private void handleSignInError(Exception exception) {
+
+        if (exception == null) {
+            showError("Sign in failed");
+            return;
         }
+
+        Log.e("SignIn", "Sign in failed", exception);
+
+        if (exception instanceof FirebaseAuthInvalidUserException) {
+
+            FirebaseAuthException authException = (FirebaseAuthException) exception;
+
+            String errorCode = authException.getErrorCode();
+
+            if ("ERROR_USER_NOT_FOUND".equals(errorCode)) {
+                showError("Account does not exist");
+                etEmail.requestFocus();
+
+            } else if ("ERROR_USER_DISABLED".equals(errorCode)) {
+                showError("This account has been disabled");
+
+            } else {
+                showError("Invalid user account");
+            }
+
+        } else if (exception instanceof FirebaseAuthInvalidCredentialsException) {
+
+            FirebaseAuthException authException =
+                    (FirebaseAuthException) exception;
+
+            String errorCode = authException.getErrorCode();
+
+            if ("ERROR_INVALID_EMAIL".equals(errorCode)) {
+                showError("Invalid email format");
+                etEmail.requestFocus();
+
+            } else if ("ERROR_WRONG_PASSWORD".equals(errorCode)) {
+                showError("Incorrect password");
+                etPassword.requestFocus();
+
+            } else {
+                showError("Email or password is incorrect");
+                etPassword.requestFocus();
+            }
+
+        } else {
+            showError("Error: " + exception.getMessage());
+        }
+    }
 }

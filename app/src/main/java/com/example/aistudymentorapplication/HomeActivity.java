@@ -16,6 +16,7 @@ import com.example.aistudymentorapplication.adapter.ChatAdapter;
 import com.example.aistudymentorapplication.model.ChatMessage;
 import com.example.aistudymentorapplication.model.ChatSession;
 import com.example.aistudymentorapplication.repository.ChatRepository;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.example.aistudymentorapplication.BuildConfig;
 
@@ -33,6 +34,7 @@ public class HomeActivity extends AppCompatActivity {
     private ChatAdapter adapter;
     private ChatRepository repository;
     private long currentSessionId = -1;
+    private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,14 +44,14 @@ public class HomeActivity extends AppCompatActivity {
         initViews();
         setupRecyclerView();
         repository = new ChatRepository(getApplication());
-
+        bottomNavigation = findViewById(R.id.bottomNavigation);
+        setupNavigation();
         currentSessionId = getIntent().getLongExtra("SESSION_ID", -1);
         if (currentSessionId != -1) {
             loadMessages();
         }
 
         btnSend.setOnClickListener(v -> sendMessage());
-        btnHistory.setOnClickListener(v -> openHistory());
         btnSignOut.setOnClickListener(v -> signOut());
     }
 
@@ -57,7 +59,6 @@ public class HomeActivity extends AppCompatActivity {
         rvChat = findViewById(R.id.rvChat);
         etMessage = findViewById(R.id.etMessage);
         btnSend = findViewById(R.id.btnSend);
-        btnHistory = findViewById(R.id.btnHistory);
         btnSignOut = findViewById(R.id.btnSignOut);
         pbLoading = findViewById(R.id.pbLoading);
     }
@@ -93,7 +94,7 @@ public class HomeActivity extends AppCompatActivity {
             // New Session: Generate title from first user message
             String title = text.length() > 30 ? text.substring(0, 27) + "..." : text;
             ChatSession session = new ChatSession(title, System.currentTimeMillis(), System.currentTimeMillis());
-            
+
             repository.createSession(session, sessionId -> {
                 currentSessionId = sessionId;
                 saveAndSend(text);
@@ -108,7 +109,7 @@ public class HomeActivity extends AppCompatActivity {
         ChatMessage userMsg = new ChatMessage(currentSessionId, "user", text, System.currentTimeMillis());
         repository.saveMessage(userMsg);
         repository.updateSessionTime(currentSessionId);
-        
+
         // Update UI immediately for user message
         adapter.addMessage(userMsg);
         rvChat.smoothScrollToPosition(adapter.getItemCount() - 1);
@@ -122,7 +123,7 @@ public class HomeActivity extends AppCompatActivity {
                 ChatMessage aiMsg = new ChatMessage(currentSessionId, "ai", response, System.currentTimeMillis());
                 repository.saveMessage(aiMsg);
                 repository.updateSessionTime(currentSessionId);
-                
+
                 runOnUiThread(() -> {
                     pbLoading.setVisibility(View.GONE);
                     btnSend.setEnabled(true);
@@ -142,15 +143,33 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void openHistory() {
-        Intent intent = new Intent(this, HistoryActivity.class);
-        startActivity(intent);
-    }
-
     private void signOut() {
         Intent intent = new Intent(this, SignInActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    private void setupNavigation() {
+        bottomNavigation.setSelectedItemId(R.id.nav_chat);
+        bottomNavigation.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_chat) {
+                return true;
+            } else if (id == R.id.nav_history) {
+                startActivity(new Intent(HomeActivity.this, HistoryActivity.class));
+                return true;
+
+//            } else if (id == R.id.nav_quiz) {
+//                //  startActivity(new Intent(HomeActivity.this, QuizActivity.class));
+//                return true;
+//
+//            } else if (id == R.id.nav_profile) {
+//                startActivity(new Intent(ChatActivity.this, ProfileActivity.class));
+//                return true;
+            }
+
+            return false;
+        });
     }
 }

@@ -17,9 +17,12 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/historyToolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="100dp"
             app:title="Chat History"
-            app:titleTextColor="@color/study_blue_dark" />
+            app:titleTextColor="@color/white"
+            android:background="@color/study_blue_dark"
+
+            android:paddingTop="20dp"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView

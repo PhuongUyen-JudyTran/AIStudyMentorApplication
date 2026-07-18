@@ -20,14 +20,15 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="100dp"
             android:background="@color/white"
             app:contentInsetStart="0dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingHorizontal="16dp">
+                android:paddingHorizontal="16dp"
+                android:paddingTop="25dp">
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cvLogo"
@@ -44,7 +45,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/ai_mentor_logo"
+                        android:src="@drawable/ic_study_logo"
                         android:contentDescription="@string/desc_logo" />
                 </com.google.android.material.card.MaterialCardView>
 
@@ -55,7 +56,6 @@
                     android:layout_marginStart="12dp"
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/btnHistory"
                     app:layout_constraintStart_toEndOf="@id/cvLogo"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -76,19 +76,6 @@
                 </LinearLayout>
 
                 <ImageButton
-                    android:id="@+id/btnHistory"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/desc_history"
-                    android:src="@android:drawable/ic_menu_recent_history"
-                    android:title="History"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/btnSignOut"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/study_blue_dark" />
-
-                <ImageButton
                     android:id="@+id/btnSignOut"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
@@ -106,16 +93,20 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Chat Area -->
+
+    <!-- Loading Indicator -->
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvChat"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_width="409dp"
+        android:layout_height="475dp"
         android:clipToPadding="false"
         android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@+id/cvInputArea"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="3dp" />
 
-    <!-- Loading Indicator -->
     <ProgressBar
         android:id="@+id/pbLoading"
         style="?android:attr/progressBarStyleHorizontal"

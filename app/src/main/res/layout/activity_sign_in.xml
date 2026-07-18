@@ -92,6 +92,15 @@
                         android:inputType="textPassword" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <TextView
+                    android:id="@+id/tvError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textColor="#F60202"
+                    android:layout_marginBottom="10dp"
+                    android:visibility="gone" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSignIn"
                     android:layout_width="match_parent"
