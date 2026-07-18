@@ -116,10 +116,11 @@ public class HomeActivity extends AppCompatActivity {
 
         pbLoading.setVisibility(View.VISIBLE);
 
-        // Request AI response
-        repository.getAiResponse(BuildConfig.GEMINI_API_KEY, text, new ChatRepository.OnResponseListener() {
+        // 2. Call Gemini API via Repository with session context
+        repository.getAiResponse(BuildConfig.GEMINI_API_KEY, currentSessionId, text, new ChatRepository.OnResponseListener() {
             @Override
             public void onSuccess(String response) {
+                // Save AI response to database
                 ChatMessage aiMsg = new ChatMessage(currentSessionId, "ai", response, System.currentTimeMillis());
                 repository.saveMessage(aiMsg);
                 repository.updateSessionTime(currentSessionId);

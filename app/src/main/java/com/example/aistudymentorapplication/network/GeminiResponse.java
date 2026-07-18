@@ -20,9 +20,15 @@ public class GeminiResponse {
     public String getText() {
         if (candidates != null && !candidates.isEmpty() &&
             candidates.get(0).content != null &&
-            candidates.get(0).content.parts != null &&
-            !candidates.get(0).content.parts.isEmpty()) {
-            return candidates.get(0).content.parts.get(0).text;
+            candidates.get(0).content.parts != null) {
+            
+            StringBuilder fullText = new StringBuilder();
+            for (Part part : candidates.get(0).content.parts) {
+                if (part.text != null) {
+                    fullText.append(part.text);
+                }
+            }
+            return fullText.toString().isEmpty() ? "No response from AI." : fullText.toString();
         }
         return "No response from AI.";
     }
