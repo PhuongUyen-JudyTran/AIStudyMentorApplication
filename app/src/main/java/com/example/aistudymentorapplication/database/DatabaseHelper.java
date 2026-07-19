@@ -8,17 +8,18 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.aistudymentorapplication.model.ChatMessage;
 import com.example.aistudymentorapplication.model.ChatSession;
+import com.example.aistudymentorapplication.model.QuizResult;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SQLiteOpenHelper implementation for managing AI Chat history.
+ * SQLiteOpenHelper implementation for managing AI Chat history and Quiz results.
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "ai_study_mentor.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Table Sessions
     private static final String TABLE_SESSIONS = "chat_sessions";
@@ -35,6 +36,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_MESSAGE = "message";
     private static final String COL_TIMESTAMP = "timestamp";
 
+    // Table Quiz Results
+    private static final String TABLE_QUIZ_RESULTS = "quiz_results";
+    private static final String COL_RESULT_ID = "result_id";
+    private static final String COL_QUIZ_SUBJECT = "subject";
+    private static final String COL_QUIZ_LEVEL = "level";
+    private static final String COL_QUIZ_SCORE = "score";
+    private static final String COL_QUIZ_TOTAL = "total";
+    private static final String COL_QUIZ_DURATION = "duration_sec";
+    private static final String COL_QUIZ_CREATED_AT = "created_at";
+
     /**
      * Initializes the SQLite database.
      * This constructor sets the database name and version.
@@ -45,7 +56,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Creates the database tables when the app is first installed or data is cleared.
-     * Generates two tables: 'chat_sessions' for conversation metadata and 'chat_messages' for the actual content.
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -63,15 +73,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_TIMESTAMP + " INTEGER, " +
                 "FOREIGN KEY(" + COL_MSG_SESSION_ID + ") REFERENCES " + TABLE_SESSIONS + "(" + COL_SESSION_ID + "))";
 
+        String createQuizResultsTable = "CREATE TABLE " + TABLE_QUIZ_RESULTS + " (" +
+                COL_RESULT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_QUIZ_SUBJECT + " TEXT, " +
+                COL_QUIZ_LEVEL + " TEXT, " +
+                COL_QUIZ_SCORE + " INTEGER, " +
+                COL_QUIZ_TOTAL + " INTEGER, " +
+                COL_QUIZ_DURATION + " INTEGER, " +
+                COL_QUIZ_CREATED_AT + " INTEGER)";
+
         db.execSQL(createSessionsTable);
         db.execSQL(createMessagesTable);
+        db.execSQL(createQuizResultsTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSIONS);
-        onCreate(db);
+        if (oldVersion < 2) {
+            String createQuizResultsTable = "CREATE TABLE IF NOT EXISTS " + TABLE_QUIZ_RESULTS + " (" +
+                    COL_RESULT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COL_QUIZ_SUBJECT + " TEXT, " +
+                    COL_QUIZ_LEVEL + " TEXT, " +
+                    COL_QUIZ_SCORE + " INTEGER, " +
+                    COL_QUIZ_TOTAL + " INTEGER, " +
+                    COL_QUIZ_DURATION + " INTEGER, " +
+                    COL_QUIZ_CREATED_AT + " INTEGER)";
+            db.execSQL(createQuizResultsTable);
+        }
     }
 
     // --- Session CRUD (Create, Read, Update, Delete) Operations ---
@@ -188,5 +216,67 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return messages;
+    }
+
+    // --- Quiz Result CRUD Operations ---
+
+    /**
+     * Inserts a new quiz result into the database.
+     */
+    public long insertQuizResult(QuizResult result) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_QUIZ_SUBJECT, result.getSubject());
+        values.put(COL_QUIZ_LEVEL, result.getLevel());
+        values.put(COL_QUIZ_SCORE, result.getScore());
+        values.put(COL_QUIZ_TOTAL, result.getTotal());
+        values.put(COL_QUIZ_DURATION, result.getDurationSec());
+        values.put(COL_QUIZ_CREATED_AT, result.getCreatedAt());
+        return db.insert(TABLE_QUIZ_RESULTS, null, values);
+    }
+
+    /**
+     * Fetches all quiz results, ordered by most recent.
+     */
+    public List<QuizResult> getAllQuizResults() {
+        List<QuizResult> results = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_QUIZ_RESULTS, null, null, null, null, null, COL_QUIZ_CREATED_AT + " DESC");
+
+        if (cursor.moveToFirst()) {
+            do {
+                QuizResult result = new QuizResult(
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_RESULT_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_QUIZ_SUBJECT)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_QUIZ_LEVEL)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_QUIZ_SCORE)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_QUIZ_TOTAL)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_QUIZ_DURATION)),
+                        cursor.getLong(cursor.getColumnIndexOrThrow(COL_QUIZ_CREATED_AT))
+                );
+                results.add(result);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return results;
+    }
+
+    /**
+     * Retrieves recent questions asked by the user (sender='user') for personalization.
+     */
+    public List<String> getRecentUserQuestions(int limit) {
+        List<String> questions = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_MESSAGES, new String[]{COL_MESSAGE}, 
+                COL_SENDER + "=?", new String[]{"user"}, 
+                null, null, COL_TIMESTAMP + " DESC", String.valueOf(limit));
+
+        if (cursor.moveToFirst()) {
+            do {
+                questions.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return questions;
     }
 }

@@ -15,12 +15,17 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.view.ViewCompat;
 
 import com.example.aistudymentorapplication.model.Question;
+import com.example.aistudymentorapplication.model.QuizResult;
+import com.example.aistudymentorapplication.repository.QuizRepository;
+import com.example.aistudymentorapplication.util.NetworkUtils;
 import com.google.android.material.button.MaterialButton;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -49,13 +54,16 @@ public class QuizActivity extends AppCompatActivity {
     private int currentQuestionIndex = 0;
     private int score = 0;
     private CountDownTimer countDownTimer;
-    private long timeLeftInMillis = 300000; // 5 minutes
+    private long timeLeftInMillis = 300000; // 5 minutes (300 seconds)
+
+    private QuizRepository quizRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
+        quizRepository = new QuizRepository(getApplication());
         initViews();
         setupDropdowns();
         
@@ -112,17 +120,45 @@ public class QuizActivity extends AppCompatActivity {
             return;
         }
 
-        loadDummyQuestions(subject, level);
-        
-        layoutQuizSetup.setVisibility(View.GONE);
-        layoutQuizContent.setVisibility(View.VISIBLE);
-        layoutQuizResult.setVisibility(View.GONE);
-        
-        startTimer();
-        displayQuestion();
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            Toast.makeText(this, "Không có kết nối mạng. Vui lòng kiểm tra lại.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Loading state
+        btnCreateQuiz.setEnabled(false);
+        btnCreateQuiz.setText("Đang tạo đề...");
+
+        quizRepository.generateQuiz(BuildConfig.GEMINI_API_KEY, subject, level, 7, new QuizRepository.OnQuestionsLoadedListener() {
+            @Override
+            public void onSuccess(List<Question> questions) {
+                btnCreateQuiz.setEnabled(true);
+                btnCreateQuiz.setText(getString(R.string.btn_create_quiz));
+                
+                questionList = questions;
+                currentQuestionIndex = 0;
+                score = 0;
+                timeLeftInMillis = 300000; // Reset timer to 5 mins
+
+                layoutQuizSetup.setVisibility(View.GONE);
+                layoutQuizContent.setVisibility(View.VISIBLE);
+                layoutQuizResult.setVisibility(View.GONE);
+
+                startTimer();
+                displayQuestion();
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                btnCreateQuiz.setEnabled(true);
+                btnCreateQuiz.setText(getString(R.string.btn_create_quiz));
+                Toast.makeText(QuizActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void startTimer() {
+        if (countDownTimer != null) countDownTimer.cancel();
         countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -144,24 +180,6 @@ public class QuizActivity extends AppCompatActivity {
         tvTimer.setText(timeFormatted);
     }
 
-    private void loadDummyQuestions(String subject, String level) {
-        questionList = new ArrayList<>();
-        questionList.add(new Question("What is the " + level + " concept in " + subject + "?",
-                Arrays.asList("Concept A", "Concept B", "Concept C", "Concept D"), 1));
-        questionList.add(new Question("Which of these is related to " + subject + "?",
-                Arrays.asList("Topic 1", "Topic 2", "Topic 3", "Topic 4"), 2));
-        questionList.add(new Question("How do you apply " + level + " skills in " + subject + "?",
-                Arrays.asList("Method 1", "Method 2", "Method 3", "Method 4"), 0));
-        questionList.add(new Question("Explain a core rule in " + subject + " for " + level + " students.",
-                Arrays.asList("Rule 1", "Rule 2", "Rule 3", "Rule 4"), 3));
-        questionList.add(new Question("Final check for " + subject + " at " + level + " level.",
-                Arrays.asList("All correct", "Half correct", "Mostly correct", "None of these"), 0));
-        questionList.add(new Question("Final check for " + subject + " at " + level + " level.",
-                Arrays.asList("All correct", "Half correct", "Mostly correct", "None of these"), 1));
-        questionList.add(new Question("Final check for " + subject + " at " + level + " level.",
-                Arrays.asList("All correct", "Half correct", "Mostly correct", "None of these"), 3));
-    }
-
     private void displayQuestion() {
         if (currentQuestionIndex < questionList.size()) {
             Question question = questionList.get(currentQuestionIndex);
@@ -169,17 +187,18 @@ public class QuizActivity extends AppCompatActivity {
             List<String> options = question.getOptions();
             for (int i = 0; i < 4; i++) {
                 rbOptions[i].setText(options.get(i));
+                rbOptions[i].setEnabled(true);
             }
             rgOptions.clearCheck();
 
             int progress = (int) (((float) (currentQuestionIndex + 1) / questionList.size()) * 100);
             progressBar.setProgress(progress);
-            tvProgressText.setText(getString(R.string.label_question, currentQuestionIndex + 1) + "/" + questionList.size());
+            tvProgressText.setText((currentQuestionIndex + 1) + "/" + questionList.size());
 
             if (currentQuestionIndex == questionList.size() - 1) {
-                btnNext.setText(R.string.btn_finish);
+                btnNext.setText("Finish");
             } else {
-                btnNext.setText(R.string.btn_next);
+                btnNext.setText("Next");
             }
         }
     }
@@ -199,28 +218,65 @@ public class QuizActivity extends AppCompatActivity {
             }
         }
 
-        if (selectedIndex == questionList.get(currentQuestionIndex).getCorrectOptionIndex()) {
+        int correctIndex = questionList.get(currentQuestionIndex).getCorrectOptionIndex();
+
+        // 2.6. Phản hồi tức thời: Khóa UI
+        for (RadioButton rb : rbOptions) rb.setEnabled(false);
+        btnNext.setEnabled(false);
+
+        // Tô màu xanh (đúng) và đỏ (sai)
+        ViewCompat.setBackgroundTintList(
+                rbOptions[correctIndex],
+                ColorStateList.valueOf(Color.parseColor("#4CAF50")));
+
+        if (selectedIndex != correctIndex) {
+            ViewCompat.setBackgroundTintList(
+                    rbOptions[selectedIndex],
+                    ColorStateList.valueOf(Color.parseColor("#E53935")));
+        } else {
             score++;
         }
 
-        currentQuestionIndex++;
-        if (currentQuestionIndex < questionList.size()) {
-            displayQuestion();
-        } else {
-            showResult();
-        }
+        // Đợi 1.2s rồi chuyển tiếp
+        new android.os.Handler().postDelayed(() -> {
+            // Trả lại background gốc
+            for (RadioButton rb : rbOptions) {
+                ViewCompat.setBackgroundTintList(rb, null);
+                rb.setEnabled(true);
+            }
+            btnNext.setEnabled(true);
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questionList.size()) {
+                displayQuestion();
+            } else {
+                showResult();
+            }
+        }, 1200);
     }
 
     private void showResult() {
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
-        
+
         layoutQuizSetup.setVisibility(View.GONE);
         layoutQuizContent.setVisibility(View.GONE);
         layoutQuizResult.setVisibility(View.VISIBLE);
-        
-        tvScoreDetail.setText(getString(R.string.label_score_detail, score, questionList.size()));
+
+        tvScoreDetail.setText("Your Score: " + score + "/" + questionList.size());
+
+        // Lưu kết quả xuống database
+        int durationSec = (int) (300 - (timeLeftInMillis / 1000));
+        QuizResult result = new QuizResult(
+                atvSubject.getText().toString(),
+                atvLevel.getText().toString(),
+                score,
+                questionList.size(),
+                durationSec,
+                System.currentTimeMillis()
+        );
+        quizRepository.saveQuizResult(result, null);
     }
 
     @Override
