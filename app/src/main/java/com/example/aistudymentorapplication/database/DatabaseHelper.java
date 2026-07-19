@@ -36,15 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_MESSAGE = "message";
     private static final String COL_TIMESTAMP = "timestamp";
 
-    // Table Quiz Results
-    private static final String TABLE_QUIZ_RESULTS = "quiz_results";
-    private static final String COL_RESULT_ID = "result_id";
-    private static final String COL_QUIZ_SUBJECT = "subject";
-    private static final String COL_QUIZ_LEVEL = "level";
-    private static final String COL_QUIZ_SCORE = "score";
-    private static final String COL_QUIZ_TOTAL = "total";
-    private static final String COL_QUIZ_DURATION = "duration_sec";
-    private static final String COL_QUIZ_CREATED_AT = "created_at";
+
 
     /**
      * Initializes the SQLite database.
@@ -73,33 +65,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL_TIMESTAMP + " INTEGER, " +
                 "FOREIGN KEY(" + COL_MSG_SESSION_ID + ") REFERENCES " + TABLE_SESSIONS + "(" + COL_SESSION_ID + "))";
 
-        String createQuizResultsTable = "CREATE TABLE " + TABLE_QUIZ_RESULTS + " (" +
-                COL_RESULT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COL_QUIZ_SUBJECT + " TEXT, " +
-                COL_QUIZ_LEVEL + " TEXT, " +
-                COL_QUIZ_SCORE + " INTEGER, " +
-                COL_QUIZ_TOTAL + " INTEGER, " +
-                COL_QUIZ_DURATION + " INTEGER, " +
-                COL_QUIZ_CREATED_AT + " INTEGER)";
 
         db.execSQL(createSessionsTable);
         db.execSQL(createMessagesTable);
-        db.execSQL(createQuizResultsTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 2) {
-            String createQuizResultsTable = "CREATE TABLE IF NOT EXISTS " + TABLE_QUIZ_RESULTS + " (" +
-                    COL_RESULT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COL_QUIZ_SUBJECT + " TEXT, " +
-                    COL_QUIZ_LEVEL + " TEXT, " +
-                    COL_QUIZ_SCORE + " INTEGER, " +
-                    COL_QUIZ_TOTAL + " INTEGER, " +
-                    COL_QUIZ_DURATION + " INTEGER, " +
-                    COL_QUIZ_CREATED_AT + " INTEGER)";
-            db.execSQL(createQuizResultsTable);
-        }
+
     }
 
     // --- Session CRUD (Create, Read, Update, Delete) Operations ---
@@ -165,7 +138,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public ChatSession getSessionById(long sessionId) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_SESSIONS, null, COL_SESSION_ID + "=?", new String[]{String.valueOf(sessionId)}, null, null, null);
-        
+
         ChatSession session = null;
         if (cursor != null && cursor.moveToFirst()) {
             session = new ChatSession(
@@ -218,48 +191,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return messages;
     }
 
-    // --- Quiz Result CRUD Operations ---
-
-    /**
-     * Inserts a new quiz result into the database.
-     */
-    public long insertQuizResult(QuizResult result) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COL_QUIZ_SUBJECT, result.getSubject());
-        values.put(COL_QUIZ_LEVEL, result.getLevel());
-        values.put(COL_QUIZ_SCORE, result.getScore());
-        values.put(COL_QUIZ_TOTAL, result.getTotal());
-        values.put(COL_QUIZ_DURATION, result.getDurationSec());
-        values.put(COL_QUIZ_CREATED_AT, result.getCreatedAt());
-        return db.insert(TABLE_QUIZ_RESULTS, null, values);
-    }
-
-    /**
-     * Fetches all quiz results, ordered by most recent.
-     */
-    public List<QuizResult> getAllQuizResults() {
-        List<QuizResult> results = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_QUIZ_RESULTS, null, null, null, null, null, COL_QUIZ_CREATED_AT + " DESC");
-
-        if (cursor.moveToFirst()) {
-            do {
-                QuizResult result = new QuizResult(
-                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_RESULT_ID)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(COL_QUIZ_SUBJECT)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(COL_QUIZ_LEVEL)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_QUIZ_SCORE)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_QUIZ_TOTAL)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_QUIZ_DURATION)),
-                        cursor.getLong(cursor.getColumnIndexOrThrow(COL_QUIZ_CREATED_AT))
-                );
-                results.add(result);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return results;
-    }
 
     /**
      * Retrieves recent questions asked by the user (sender='user') for personalization.
@@ -267,8 +198,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<String> getRecentUserQuestions(int limit) {
         List<String> questions = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_MESSAGES, new String[]{COL_MESSAGE}, 
-                COL_SENDER + "=?", new String[]{"user"}, 
+        Cursor cursor = db.query(TABLE_MESSAGES, new String[]{COL_MESSAGE},
+                COL_SENDER + "=?", new String[]{"user"},
                 null, null, COL_TIMESTAMP + " DESC", String.valueOf(limit));
 
         if (cursor.moveToFirst()) {

@@ -22,6 +22,9 @@ import com.example.aistudymentorapplication.model.QuizResult;
 import com.example.aistudymentorapplication.repository.QuizRepository;
 import com.example.aistudymentorapplication.util.NetworkUtils;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -54,7 +57,7 @@ public class QuizActivity extends AppCompatActivity {
     private int currentQuestionIndex = 0;
     private int score = 0;
     private CountDownTimer countDownTimer;
-    private long timeLeftInMillis = 300000; // 5 minutes (300 seconds)
+    private long timeLeftInMillis = 600000; // 5 minutes (300 seconds)
 
     private QuizRepository quizRepository;
 
@@ -121,15 +124,15 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         if (!NetworkUtils.isNetworkAvailable(this)) {
-            Toast.makeText(this, "Không có kết nối mạng. Vui lòng kiểm tra lại.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No internet connection.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Loading state
         btnCreateQuiz.setEnabled(false);
-        btnCreateQuiz.setText("Đang tạo đề...");
+        btnCreateQuiz.setText("Create quiz...");
 
-        quizRepository.generateQuiz(BuildConfig.GEMINI_API_KEY, subject, level, 7, new QuizRepository.OnQuestionsLoadedListener() {
+        quizRepository.generateQuiz(BuildConfig.GEMINI_API_KEY, subject, level, 10, new QuizRepository.OnQuestionsLoadedListener() {
             @Override
             public void onSuccess(List<Question> questions) {
                 btnCreateQuiz.setEnabled(true);
@@ -220,11 +223,11 @@ public class QuizActivity extends AppCompatActivity {
 
         int correctIndex = questionList.get(currentQuestionIndex).getCorrectOptionIndex();
 
-        // 2.6. Phản hồi tức thời: Khóa UI
+
         for (RadioButton rb : rbOptions) rb.setEnabled(false);
         btnNext.setEnabled(false);
 
-        // Tô màu xanh (đúng) và đỏ (sai)
+
         ViewCompat.setBackgroundTintList(
                 rbOptions[correctIndex],
                 ColorStateList.valueOf(Color.parseColor("#4CAF50")));
@@ -237,9 +240,8 @@ public class QuizActivity extends AppCompatActivity {
             score++;
         }
 
-        // Đợi 1.2s rồi chuyển tiếp
         new android.os.Handler().postDelayed(() -> {
-            // Trả lại background gốc
+
             for (RadioButton rb : rbOptions) {
                 ViewCompat.setBackgroundTintList(rb, null);
                 rb.setEnabled(true);
@@ -256,6 +258,7 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void showResult() {
+
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
@@ -266,8 +269,8 @@ public class QuizActivity extends AppCompatActivity {
 
         tvScoreDetail.setText("Your Score: " + score + "/" + questionList.size());
 
-        // Lưu kết quả xuống database
         int durationSec = (int) (300 - (timeLeftInMillis / 1000));
+
         QuizResult result = new QuizResult(
                 atvSubject.getText().toString(),
                 atvLevel.getText().toString(),
@@ -276,7 +279,33 @@ public class QuizActivity extends AppCompatActivity {
                 durationSec,
                 System.currentTimeMillis()
         );
-        quizRepository.saveQuizResult(result, null);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null) {
+            Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String uid = user.getUid();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("Users")
+                .document(uid)
+                .collection("history")
+                .add(result)
+                .addOnSuccessListener(documentReference -> {
+
+                    Toast.makeText(QuizActivity.this, "Quiz saved successfully", Toast.LENGTH_SHORT).show();
+
+                })
+                .addOnFailureListener(e -> {
+
+                    Toast.makeText(QuizActivity.this, e.getMessage(), Toast.LENGTH_LONG
+                    ).show();
+
+                });
     }
 
     @Override

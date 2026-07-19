@@ -11,8 +11,13 @@ import com.example.aistudymentorapplication.network.GeminiApiClient;
 import com.example.aistudymentorapplication.network.GeminiApiService;
 import com.example.aistudymentorapplication.network.GeminiRequest;
 import com.example.aistudymentorapplication.network.GeminiResponse;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.Query;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -26,11 +31,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class QuizRepository {
-    private DatabaseHelper dbHelper;
     private GeminiApiService apiService;
     private ExecutorService executorService;
     private Handler mainHandler;
     private Gson gson;
+    private FirebaseFirestore db;
 
     public interface OnQuestionsLoadedListener {
         void onSuccess(List<Question> questions);
@@ -42,32 +47,32 @@ public class QuizRepository {
     }
 
     public QuizRepository(Application application) {
-        dbHelper = new DatabaseHelper(application);
         apiService = GeminiApiClient.getApiService();
         executorService = Executors.newSingleThreadExecutor();
         mainHandler = new Handler(Looper.getMainLooper());
         gson = new Gson();
+        db = FirebaseFirestore.getInstance();
     }
 
     public void generateQuiz(String apiKey, String subject, String level, int questionCount, OnQuestionsLoadedListener listener) {
         executorService.execute(() -> {
             // 1. Get recent user questions for personalization
-            List<String> recentQuestions = dbHelper.getRecentUserQuestions(20);
-            StringBuilder contextBuilder = new StringBuilder();
-            if (!recentQuestions.isEmpty()) {
-                contextBuilder.append("\nDưới đây là một số câu hỏi học sinh đã từng hỏi gần đây:\n");
-                for (String q : recentQuestions) {
-                    contextBuilder.append("- ").append(q).append("\n");
-                }
-                contextBuilder.append("Nếu có câu nào liên quan đến môn ").append(subject)
-                        .append(", hãy ưu tiên tạo câu hỏi ôn tập xoay quanh các chủ đề đó.\n");
-            }
+            //StringBuilder contextBuilder = new StringBuilder();
+//            if (!recentQuestions.isEmpty()) {
+//                contextBuilder.append("\nDưới đây là một số câu hỏi học sinh đã từng hỏi gần đây:\n");
+//                for (String q : recentQuestions) {
+//                    contextBuilder.append("- ").append(q).append("\n");
+//                }
+//                contextBuilder.append("Nếu có câu nào liên quan đến môn ").append(subject)
+//                        .append(", hãy ưu tiên tạo câu hỏi ôn tập xoay quanh các chủ đề đó.\n");
+//            }
 
             // 2. Prepare System Prompt
             String lang = "English".equalsIgnoreCase(subject) ? "English" : "Vietnamese";
             String systemPrompt = "Bạn là AI Tutor - Gia sư học tập thông minh. Nhiệm vụ của bạn là tạo " + questionCount + 
                     " câu hỏi trắc nghiệm (4 đáp án) cho " + level + " về môn " + subject + 
-                    " bằng ngôn ngữ " + lang + "." + contextBuilder.toString() +
+                    " bằng ngôn ngữ " + lang + "."
+                    + //contextBuilder.toString() +
                     "\nTrả về kết quả dưới dạng JSON array của các object { \"question\": string, \"options\": [string, string, string, string], \"correctIndex\": integer (0-3) }.";
 
             String userPrompt = "Tạo bộ đề thi trắc nghiệm môn " + subject + " cho " + level + ".";
@@ -121,21 +126,47 @@ public class QuizRepository {
             });
         });
     }
-
     public void saveQuizResult(QuizResult result, OnResultSavedListener listener) {
-        executorService.execute(() -> {
-            long id = dbHelper.insertQuizResult(result);
-            if (listener != null) {
-                mainHandler.post(() -> listener.onSaved(id));
-            }
-        });
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            return;
+        }
+
+        db.collection("Users")
+                .document(user.getUid())
+                .collection("history")
+                .add(result)
+                .addOnSuccessListener(documentReference -> {
+                    if (listener != null) {
+                        listener.onSaved(0);
+                    }
+                });
     }
 
-    public void getAllQuizResults(ChatRepository.OnDataLoadedListener<List<QuizResult>> listener) {
-        executorService.execute(() -> {
-            List<QuizResult> results = dbHelper.getAllQuizResults();
-            mainHandler.post(() -> listener.onLoaded(results));
-        });
+    public void getAllQuizResults(
+            ChatRepository.OnDataLoadedListener<List<QuizResult>> listener) {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null) {
+            listener.onLoaded(new ArrayList<>());
+            return;
+        }
+
+        db.collection("users")
+                .document(user.getUid())
+                .collection("history")
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<QuizResult> list = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        QuizResult result = doc.toObject(QuizResult.class);
+                        list.add(result);
+                    }
+                    listener.onLoaded(list);
+
+                });
     }
 
     // Helper class for JSON parsing

@@ -176,6 +176,10 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
                 return true;
             }
+            else if (id == R.id.nav_history_quiz) {
+                startActivity(new Intent(HomeActivity.this, QuizHistoryActivity.class));
+                return true;
+            }
             return false;
         });
     }

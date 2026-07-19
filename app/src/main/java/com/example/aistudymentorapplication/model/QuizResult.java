@@ -1,10 +1,7 @@
 package com.example.aistudymentorapplication.model;
 
-/**
- * Model representing the result of a completed quiz session.
- */
 public class QuizResult {
-    private int resultId;
+
     private String subject;
     private String level;
     private int score;
@@ -12,7 +9,13 @@ public class QuizResult {
     private int durationSec;
     private long createdAt;
 
-    public QuizResult(String subject, String level, int score, int total, int durationSec, long createdAt) {
+    public QuizResult() {
+
+    }
+
+    public QuizResult(String subject, String level,
+                      int score, int total,
+                      int durationSec, long createdAt) {
         this.subject = subject;
         this.level = level;
         this.score = score;
@@ -21,21 +24,51 @@ public class QuizResult {
         this.createdAt = createdAt;
     }
 
-    public QuizResult(int resultId, String subject, String level, int score, int total, int durationSec, long createdAt) {
-        this.resultId = resultId;
-        this.subject = subject;
-        this.level = level;
-        this.score = score;
-        this.total = total;
-        this.durationSec = durationSec;
-        this.createdAt = createdAt;
+    public String getSubject() {
+        return subject;
     }
 
-    public int getResultId() { return resultId; }
-    public String getSubject() { return subject; }
-    public String getLevel() { return level; }
-    public int getScore() { return score; }
-    public int getTotal() { return total; }
-    public int getDurationSec() { return durationSec; }
-    public long getCreatedAt() { return createdAt; }
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
+    public int getDurationSec() {
+        return durationSec;
+    }
+
+    public void setDurationSec(int durationSec) {
+        this.durationSec = durationSec;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
+    }
 }
