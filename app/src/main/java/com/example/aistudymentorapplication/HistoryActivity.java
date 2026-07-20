@@ -33,6 +33,7 @@ public class HistoryActivity extends AppCompatActivity {
 
         rvHistory = findViewById(R.id.rvHistory);
         FloatingActionButton btnNewChat = findViewById(R.id.btnNewChat);
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         repository = new ChatRepository(getApplication());
         setupRecyclerView();

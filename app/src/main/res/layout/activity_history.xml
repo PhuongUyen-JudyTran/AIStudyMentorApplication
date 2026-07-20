@@ -18,11 +18,31 @@
             android:id="@+id/historyToolbar"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            app:title="Chat History"
-            app:titleTextColor="@color/white"
             android:background="@color/study_blue_dark"
+            android:paddingTop="20dp">
 
-            android:paddingTop="20dp"/>
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="80dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/desc_back"
+                android:paddingTop="50dp"
+                android:src="@drawable/ic_back"
+                app:tint="@color/white" />
+
+            <TextView
+                android:id="@+id/tvToolbarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingTop="50dp"
+                android:text="@string/desc_history"
+                android:textColor="@color/white"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView

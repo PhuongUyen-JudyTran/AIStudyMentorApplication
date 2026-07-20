@@ -19,6 +19,7 @@
     <string name="menu_profile">Profile</string>
     <string name="hint_message">Type a message…</string>
     <string name="status_online">Online</string>
+    <string name="status_offline">Offline</string>
     <string name="desc_attach">Attach file</string>
     <string name="desc_send">Send message</string>
     <string name="desc_history">Chat History</string>

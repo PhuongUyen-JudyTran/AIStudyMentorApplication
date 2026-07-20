@@ -118,7 +118,7 @@ public class QuizRepository {
                 public void onFailure(Call<GeminiResponse> call, Throwable t) {
                     String msg = "Network Failure: " + t.getMessage();
                     if (t instanceof IOException) {
-                        msg = "Không có kết nối mạng. Vui lòng kiểm tra lại.";
+                        msg = "No network connection. Please check again.";
                     }
                     String finalMsg = msg;
                     mainHandler.post(() -> listener.onError(finalMsg));
