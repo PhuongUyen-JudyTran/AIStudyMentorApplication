@@ -9,4 +9,7 @@
     <color name="gray_text">#757575</color>
     <color name="gray_light">#F1F1F1</color>
     <color name="yellow">#F6FCD8</color>
+    <color name="error_red">#F60202</color>
+    <color name="success_green">#4CAF50</color>
+    <color name="quiz_history_bg">#FFF7FA</color>
 </resources>

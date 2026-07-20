@@ -34,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
-                android:text="User Profile"
+                android:text="@string/title_user_profile"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -50,14 +50,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:background="@android:color/transparent"
-                android:contentDescription="Back"
+                android:contentDescription="@string/desc_back"
                 android:minWidth="48dp"
                 android:minHeight="48dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.897"
-                app:srcCompat="@android:drawable/ic_menu_revert" />
+                app:srcCompat="@drawable/ic_back" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -104,7 +104,7 @@
                 android:hint="@string/label_full_name"
                 app:boxStrokeColor="@color/study_blue_primary"
                 app:hintTextColor="@color/study_blue_primary"
-                app:startIconDrawable="@android:drawable/ic_menu_myplaces">
+                app:startIconDrawable="@drawable/ic_person">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etFullName"
@@ -123,7 +123,7 @@
                 android:hint="@string/label_email"
                 app:boxStrokeColor="@color/study_blue_primary"
                 app:hintTextColor="@color/study_blue_primary"
-                app:startIconDrawable="@android:drawable/ic_dialog_email">
+                app:startIconDrawable="@drawable/ic_email">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etEmail"
@@ -142,7 +142,7 @@
                 android:hint="@string/label_grade"
                 app:boxStrokeColor="@color/study_blue_primary"
                 app:hintTextColor="@color/study_blue_primary"
-                app:startIconDrawable="@android:drawable/ic_menu_sort_by_size">
+                app:startIconDrawable="@drawable/ic_book">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etGrade"
@@ -161,7 +161,7 @@
                 android:hint="@string/label_school"
                 app:boxStrokeColor="@color/study_blue_primary"
                 app:hintTextColor="@color/study_blue_primary"
-                app:startIconDrawable="@android:drawable/ic_menu_gallery">
+                app:startIconDrawable="@drawable/ic_school">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etSchool"

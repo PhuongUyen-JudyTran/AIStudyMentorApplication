@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFF7FA">
-
+    android:background="@color/quiz_history_bg">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -30,9 +29,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:paddingTop="50dp"
-            android:text="Quiz History"
+            android:text="@string/title_quiz_history"
             android:textColor="@color/white"
-            android:textSize="25dp"
+            android:textSize="25sp"
             android:textStyle="bold" />
 
     </com.google.android.material.appbar.MaterialToolbar>

@@ -59,4 +59,6 @@
     <string name="btn_update_profile">Update Profile</string>
     <string name="msg_profile_updated">Profile updated successfully!</string>
     <string name="desc_back">Go back</string>
+    <string name="title_user_profile">User Profile</string>
+    <string name="title_quiz_history">Quiz History</string>
 </resources>

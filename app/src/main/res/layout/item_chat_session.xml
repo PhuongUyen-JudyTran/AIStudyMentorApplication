@@ -17,7 +17,7 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@android:drawable/ic_menu_recent_history"
+            android:src="@drawable/ic_history"
             app:tint="@color/study_blue_primary"
             android:contentDescription="Session icon" />
 
@@ -51,7 +51,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_delete"
+            android:src="@drawable/ic_delete"
             app:tint="@color/gray_text"
             android:contentDescription="Delete session" />
 

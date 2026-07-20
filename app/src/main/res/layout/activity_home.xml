@@ -71,7 +71,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/status_online"
-                        android:textColor="#4CAF50"
+                        android:textColor="@color/success_green"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -81,7 +81,7 @@
                     android:layout_height="40dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/desc_sign_out"
-                    android:src="@android:drawable/ic_lock_power_off"
+                    android:src="@drawable/ic_logout"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -98,14 +98,15 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvChat"
-        android:layout_width="409dp"
-        android:layout_height="475dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:clipToPadding="false"
         android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@+id/cvInputArea"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
-        app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="3dp" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <ProgressBar
         android:id="@+id/pbLoading"
@@ -140,7 +141,7 @@
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/desc_attach"
-                android:src="@android:drawable/ic_input_add"
+                android:src="@drawable/ic_attach"
                 app:tint="@color/gray_text" />
 
             <EditText
@@ -163,7 +164,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:contentDescription="@string/desc_send"
-                android:src="@android:drawable/ic_menu_send"
+                android:src="@drawable/ic_send"
                 app:backgroundTint="@color/study_blue_primary"
                 app:fabCustomSize="40dp"
                 app:tint="@color/white" />

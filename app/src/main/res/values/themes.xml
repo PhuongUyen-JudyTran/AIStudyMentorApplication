@@ -2,7 +2,12 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.AIStudyMentorApplication" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/study_blue_primary</item>
+        <item name="colorPrimaryDark">@color/study_blue_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/study_blue_primary</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:statusBarColor">@color/study_blue_dark</item>
     </style>
 
     <style name="Theme.AIStudyMentorApplication" parent="Base.Theme.AIStudyMentorApplication" />
