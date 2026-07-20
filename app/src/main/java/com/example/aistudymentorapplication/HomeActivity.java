@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +31,7 @@ public class HomeActivity extends AppCompatActivity {
     private FloatingActionButton btnSend;
     private ImageButton btnHistory, btnSignOut;
     private ProgressBar pbLoading;
+    private TextView tvStatus;
 
     private ChatAdapter adapter;
     private ChatRepository repository;
@@ -62,6 +64,7 @@ public class HomeActivity extends AppCompatActivity {
         if (bottomNavigation != null) {
             bottomNavigation.setSelectedItemId(R.id.nav_chat);
         }
+        updateStatus();
     }
 
     private void initViews() {
@@ -70,6 +73,18 @@ public class HomeActivity extends AppCompatActivity {
         btnSend = findViewById(R.id.btnSend);
         btnSignOut = findViewById(R.id.btnSignOut);
         pbLoading = findViewById(R.id.pbLoading);
+        tvStatus = findViewById(R.id.tvStatus);
+    }
+
+    private void updateStatus() {
+        if (tvStatus == null) return;
+        if (com.example.aistudymentorapplication.util.NetworkUtils.isNetworkAvailable(this)) {
+            tvStatus.setText(R.string.status_online);
+            tvStatus.setTextColor(getColor(R.color.success_green));
+        } else {
+            tvStatus.setText(R.string.status_offline);
+            tvStatus.setTextColor(getColor(R.color.offline_gray));
+        }
     }
 
     private void setupRecyclerView() {

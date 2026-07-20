@@ -38,7 +38,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:background="@color/white">
+            android:background="@color/study_blue_dark">
 
             <ImageButton
                 android:id="@+id/btnBack"
@@ -48,7 +48,7 @@
                 android:contentDescription="@string/desc_back"
                 android:src="@drawable/ic_back"
                 android:paddingTop="50dp"
-                app:tint="@color/study_blue_dark" />
+                app:tint="@color/white" />
 
             <TextView
                 android:id="@+id/tvToolbarTitle"
@@ -56,8 +56,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/title_quiz"
-                android:textColor="@color/study_blue_dark"
-                android:textSize="20sp"
+                android:textColor="@color/white"
+                android:textSize="25sp"
                 android:paddingTop="50dp"
                 android:textStyle="bold" />
 

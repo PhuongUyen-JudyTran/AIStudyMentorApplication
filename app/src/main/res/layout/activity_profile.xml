@@ -33,16 +33,15 @@
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="10dp"
+                android:paddingTop="50dp"
                 android:text="@string/title_user_profile"
                 android:textColor="@color/white"
-                android:textSize="20sp"
+                android:textSize="25sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.888" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
                 android:id="@+id/btnBack"
@@ -53,11 +52,12 @@
                 android:contentDescription="@string/desc_back"
                 android:minWidth="48dp"
                 android:minHeight="48dp"
+                android:paddingTop="50dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.897"
-                app:srcCompat="@drawable/ic_back" />
+                app:srcCompat="@drawable/ic_back"
+                app:tint="@color/white" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
