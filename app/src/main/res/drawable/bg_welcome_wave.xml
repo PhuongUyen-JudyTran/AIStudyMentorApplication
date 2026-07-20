@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="100dp"
+    android:viewportWidth="200"
+    android:viewportHeight="100">
+    <!-- Bottom background -->
+    <path
+        android:fillColor="#F8FBFF"
+        android:pathData="M0,0 L200,0 L200,100 L0,100 Z" />
+    <!-- First wave -->
+    <path
+        android:fillColor="#EBF5FF"
+        android:pathData="M0,50 C50,20 150,80 200,50 L200,100 L0,100 Z" />
+    <!-- Second wave -->
+    <path
+        android:fillColor="#D8EBFF"
+        android:pathData="M0,70 C60,50 140,90 200,70 L200,100 L0,100 Z" />
+</vector>

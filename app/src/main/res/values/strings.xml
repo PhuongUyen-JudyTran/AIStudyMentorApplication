@@ -61,4 +61,9 @@
     <string name="desc_back">Go back</string>
     <string name="title_user_profile">User Profile</string>
     <string name="title_quiz_history">Quiz History</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_description">Artificial Intelligence by your side\nLearn smarter every day.</string>
+    <string name="btn_get_started">Get Started</string>
+    <string name="label_application">A P P L I C A T I O N</string>
 </resources>
