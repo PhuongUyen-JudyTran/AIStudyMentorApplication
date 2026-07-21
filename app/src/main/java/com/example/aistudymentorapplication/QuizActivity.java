@@ -45,6 +45,8 @@ public class QuizActivity extends AppCompatActivity {
     private TextView tvProgressText, tvQuestion, tvTimer;
     private RadioGroup rgOptions;
     private RadioButton[] rbOptions = new RadioButton[4];
+    private com.google.android.material.card.MaterialCardView cvExplanation; // MỚI
+    private TextView tvExplanation;
     private MaterialButton btnNext;
     private ImageButton btnBack;
 
@@ -56,6 +58,7 @@ public class QuizActivity extends AppCompatActivity {
     private List<Question> questionList;
     private int currentQuestionIndex = 0;
     private int score = 0;
+    private boolean isAnswerChecked = false; // theo dõi đang ở bước "check" hay "continue"
     private CountDownTimer countDownTimer;
     private long timeLeftInMillis = 600000; // 5 minutes (300 seconds)
 
@@ -94,6 +97,8 @@ public class QuizActivity extends AppCompatActivity {
         rbOptions[1] = findViewById(R.id.rbOption2);
         rbOptions[2] = findViewById(R.id.rbOption3);
         rbOptions[3] = findViewById(R.id.rbOption4);
+        cvExplanation = findViewById(R.id.cvExplanation);
+        tvExplanation = findViewById(R.id.tvExplanation);
         btnNext = findViewById(R.id.btnNext);
         btnBack = findViewById(R.id.btnBack);
 
@@ -207,46 +212,60 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void handleNextQuestion() {
-        int selectedId = rgOptions.getCheckedRadioButtonId();
-        if (selectedId == -1) {
-            Toast.makeText(this, "Please select an answer", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        int selectedIndex = -1;
-        for (int i = 0; i < 4; i++) {
-            if (rbOptions[i].getId() == selectedId) {
-                selectedIndex = i;
-                break;
+        if (!isAnswerChecked) {
+            // ----- BƯỚC 1: CHECK ĐÁP ÁN -----
+            int selectedId = rgOptions.getCheckedRadioButtonId();
+            if (selectedId == -1) {
+                Toast.makeText(this, "Please select an answer", Toast.LENGTH_SHORT).show();
+                return;
             }
-        }
 
-        int correctIndex = questionList.get(currentQuestionIndex).getCorrectOptionIndex();
+            int selectedIndex = -1;
+            for (int i = 0; i < rbOptions.length; i++) {
+                if (rbOptions[i].getId() == selectedId) {
+                    selectedIndex = i;
+                    break;
+                }
+            }
 
+            Question currentQuestion = questionList.get(currentQuestionIndex);
+            int correctIndex = currentQuestion.getCorrectOptionIndex();
 
-        for (RadioButton rb : rbOptions) rb.setEnabled(false);
-        btnNext.setEnabled(false);
+            for (RadioButton rb : rbOptions) rb.setEnabled(false);
 
-
-        ViewCompat.setBackgroundTintList(
-                rbOptions[correctIndex],
-                ColorStateList.valueOf(Color.parseColor("#4CAF50")));
-
-        if (selectedIndex != correctIndex) {
             ViewCompat.setBackgroundTintList(
-                    rbOptions[selectedIndex],
-                    ColorStateList.valueOf(Color.parseColor("#E53935")));
-        } else {
-            score++;
-        }
+                    rbOptions[correctIndex],
+                    ColorStateList.valueOf(Color.parseColor("#4CAF50")));
 
-        new android.os.Handler().postDelayed(() -> {
-
-            for (RadioButton rb : rbOptions) {
-                ViewCompat.setBackgroundTintList(rb, null);
-                rb.setEnabled(true);
+            if (selectedIndex != correctIndex) {
+                ViewCompat.setBackgroundTintList(
+                        rbOptions[selectedIndex],
+                        ColorStateList.valueOf(Color.parseColor("#E53935")));
+            } else {
+                score++;
             }
-            btnNext.setEnabled(true);
+
+            // Hiện giải thích (nếu Gemini có trả về)
+            String explanation = currentQuestion.getExplanation();
+            if (explanation != null && !explanation.trim().isEmpty()) {
+                tvExplanation.setText(explanation);
+                cvExplanation.setVisibility(View.VISIBLE);
+            }
+
+            // Đổi nút sang trạng thái "Continue" — không auto-advance nữa
+            btnNext.setText("Continue");
+            isAnswerChecked = true;
+
+        } else {
+            // ----- BƯỚC 2: CONTINUE SANG CÂU TIẾP THEO -----
+            cvExplanation.setVisibility(View.GONE);
+            for (RadioButton rb : rbOptions) {
+                rb.setEnabled(true);
+                ViewCompat.setBackgroundTintList(rb, null); // trả lại màu gốc (selector_option_bg)
+            }
+            rgOptions.clearCheck();
+            btnNext.setText(getString(R.string.btn_next));
+            isAnswerChecked = false;
 
             currentQuestionIndex++;
             if (currentQuestionIndex < questionList.size()) {
@@ -254,7 +273,7 @@ public class QuizActivity extends AppCompatActivity {
             } else {
                 showResult();
             }
-        }, 1200);
+        }
     }
 
     private void showResult() {

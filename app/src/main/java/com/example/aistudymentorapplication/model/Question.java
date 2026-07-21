@@ -6,11 +6,13 @@ public class Question {
     private String text;
     private List<String> options;
     private int correctOptionIndex;
+    private String explanation;
 
-    public Question(String text, List<String> options, int correctOptionIndex) {
+    public Question(String text, List<String> options, int correctOptionIndex, String explanation) {
         this.text = text;
         this.options = options;
         this.correctOptionIndex = correctOptionIndex;
+        this.explanation = (explanation != null) ? explanation : "";
     }
 
     public String getText() {
@@ -23,5 +25,8 @@ public class Question {
 
     public int getCorrectOptionIndex() {
         return correctOptionIndex;
+    }
+    public String getExplanation() {
+        return explanation;
     }
 }

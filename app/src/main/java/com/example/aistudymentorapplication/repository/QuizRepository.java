@@ -73,7 +73,12 @@ public class QuizRepository {
                     " câu hỏi trắc nghiệm (4 đáp án) cho " + level + " về môn " + subject + 
                     " bằng ngôn ngữ " + lang + "."
                     + //contextBuilder.toString() +
-                    "\nTrả về kết quả dưới dạng JSON array của các object { \"question\": string, \"options\": [string, string, string, string], \"correctIndex\": integer (0-3) }.";
+                    "\nTrả về kết quả dưới dạng JSON array của các object { " +
+                    "\"question\": string, " +
+                    "\"options\": [string, string, string, string], " +
+                    "\"correctIndex\": integer (0-3), " +
+                    "\"explanation\": string (1-2 câu ngắn gọn giải thích vì sao đáp án đó đúng, " +
+                    "cùng ngôn ngữ " + lang + ") }.";
 
             String userPrompt = "Tạo bộ đề thi trắc nghiệm môn " + subject + " cho " + level + ".";
 
@@ -92,7 +97,7 @@ public class QuizRepository {
                             List<Question> finalQuestions = new ArrayList<>();
                             for (QuizQuestion rq : rawQuestions) {
                                 if (rq.options != null && rq.options.size() == 4 && rq.correctIndex >= 0 && rq.correctIndex <= 3) {
-                                    finalQuestions.add(new Question(rq.question, rq.options, rq.correctIndex));
+                                    finalQuestions.add(new Question(rq.question, rq.options, rq.correctIndex, rq.explanation));
                                 }
                             }
 
@@ -174,5 +179,6 @@ public class QuizRepository {
         String question;
         List<String> options;
         int correctIndex;
+        String explanation; // MỚI
     }
 }

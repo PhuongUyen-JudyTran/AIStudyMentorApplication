@@ -290,6 +290,29 @@
                         android:text="Option 4"
                         android:textColor="@color/study_blue_dark" />
                 </RadioGroup>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cvExplanation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/study_blue_light"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <TextView
+                        android:id="@+id/tvExplanation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:textColor="@color/study_blue_dark"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="4dp"
+                        tools:text="Explanation will appear here." />
+
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </ScrollView>
 
