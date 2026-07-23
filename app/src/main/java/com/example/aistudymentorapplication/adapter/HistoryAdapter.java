@@ -19,9 +19,15 @@ import java.util.Locale;
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
 
     private final List<QuizResult> list;
+    private OnItemDeleteListener deleteListener;
 
-    public HistoryAdapter(List<QuizResult> list) {
+    public interface OnItemDeleteListener {
+        void onDeleteClick(QuizResult result, int position);
+    }
+
+    public HistoryAdapter(List<QuizResult> list, OnItemDeleteListener deleteListener) {
         this.list = list;
+        this.deleteListener = deleteListener;
     }
 
     @NonNull
@@ -53,6 +59,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                 sdf.format(new Date(result.getCreatedAt()))
         );
 
+        holder.btnDelete.setOnClickListener(v -> {
+            if (deleteListener != null) {
+                deleteListener.onDeleteClick(result, position);
+            }
+        });
+
     }
 
     @Override
@@ -63,6 +75,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     class ViewHolder extends RecyclerView.ViewHolder{
 
         TextView tvSubject,tvLevel,tvScore,tvDuration,tvDate;
+        android.widget.ImageButton btnDelete;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -72,6 +85,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             tvScore=itemView.findViewById(R.id.tvScore);
             tvDuration=itemView.findViewById(R.id.tvDuration);
             tvDate=itemView.findViewById(R.id.tvDate);
+            btnDelete=itemView.findViewById(R.id.btnDelete);
 
         }
     }

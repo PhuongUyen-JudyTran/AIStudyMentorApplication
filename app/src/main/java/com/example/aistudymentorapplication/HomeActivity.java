@@ -29,7 +29,7 @@ public class HomeActivity extends AppCompatActivity {
     private RecyclerView rvChat;
     private EditText etMessage;
     private FloatingActionButton btnSend;
-    private ImageButton btnHistory, btnSignOut;
+    private ImageButton btnHistory, btnSignOut, btnNewChat;
     private ProgressBar pbLoading;
     private TextView tvStatus;
 
@@ -56,6 +56,7 @@ public class HomeActivity extends AppCompatActivity {
 
         btnSend.setOnClickListener(v -> sendMessage());
         btnSignOut.setOnClickListener(v -> signOut());
+        btnNewChat.setOnClickListener(v -> startNewChat());
     }
 
     @Override
@@ -72,6 +73,7 @@ public class HomeActivity extends AppCompatActivity {
         etMessage = findViewById(R.id.etMessage);
         btnSend = findViewById(R.id.btnSend);
         btnSignOut = findViewById(R.id.btnSignOut);
+        btnNewChat = findViewById(R.id.btnNewChat);
         pbLoading = findViewById(R.id.pbLoading);
         tvStatus = findViewById(R.id.tvStatus);
     }
@@ -166,6 +168,13 @@ public class HomeActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private void startNewChat() {
+        currentSessionId = -1;
+        adapter.setMessages(new java.util.ArrayList<>());
+        etMessage.setText("");
+        Toast.makeText(this, R.string.msg_new_chat_started, Toast.LENGTH_SHORT).show();
     }
 
     private void signOut() {

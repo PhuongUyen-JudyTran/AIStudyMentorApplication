@@ -39,6 +39,8 @@ public class QuizActivity extends AppCompatActivity {
     private AutoCompleteTextView atvLevel, atvSubject;
     private MaterialButton btnCreateQuiz;
 
+    private long sessionId;
+
     // Quiz Content UI
     private ConstraintLayout layoutQuizContent;
     private ProgressBar progressBar;
@@ -109,8 +111,12 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void setupDropdowns() {
-        String[] levels = {getString(R.string.level_1), getString(R.string.level_2), getString(R.string.level_3)};
-        String[] subjects = {getString(R.string.subject_math), getString(R.string.subject_science), getString(R.string.subject_history), getString(R.string.subject_english)};
+        String[] levels = {getString(R.string.level_1), getString(R.string.level_2),
+                getString(R.string.level_3), getString(R.string.level_4)};
+        String[] subjects = {getString(R.string.subject_math), getString(R.string.subject_science), getString(R.string.subject_history),
+                getString(R.string.subject_english), getString(R.string.subject_civic_education), getString(R.string.subject_gegraphy),
+                getString(R.string.subject_biology), getString(R.string.subject_technology), getString(R.string.subject_chemistry),
+                getString(R.string.subject_physics), getString(R.string.subject_literature)};
 
         ArrayAdapter<String> levelAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, levels);
         atvLevel.setAdapter(levelAdapter);
@@ -137,7 +143,12 @@ public class QuizActivity extends AppCompatActivity {
         btnCreateQuiz.setEnabled(false);
         btnCreateQuiz.setText("Create quiz...");
 
-        quizRepository.generateQuiz(BuildConfig.GEMINI_API_KEY, subject, level, 10, new QuizRepository.OnQuestionsLoadedListener() {
+
+        quizRepository.generateQuiz(BuildConfig.GEMINI_API_KEY,
+                subject,
+                level,
+                10,
+                new QuizRepository.OnQuestionsLoadedListener()  {
             @Override
             public void onSuccess(List<Question> questions) {
                 btnCreateQuiz.setEnabled(true);

@@ -8,6 +8,7 @@ public class QuizResult {
     private int total;
     private int durationSec;
     private long createdAt;
+    private String documentId;
 
     public QuizResult() {
 
@@ -70,5 +71,13 @@ public class QuizResult {
 
     public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 }

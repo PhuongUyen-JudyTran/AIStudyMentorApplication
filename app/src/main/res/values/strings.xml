@@ -24,6 +24,8 @@
     <string name="desc_send">Send message</string>
     <string name="desc_history">Chat History</string>
     <string name="desc_sign_out">Sign Out</string>
+    <string name="desc_new_chat">New Chat</string>
+    <string name="msg_new_chat_started">New chat session started</string>
 
     <!-- Quiz strings -->
     <string name="title_quiz">Quiz</string>
@@ -36,13 +38,24 @@
     <string name="label_choose_level">Choose Level</string>
     <string name="label_select_subject">Select Subject</string>
     <string name="btn_create_quiz">Create Quiz</string>
+
     <string name="level_1">Grade 1_5</string>
     <string name="level_2">Grade 6_9</string>
     <string name="level_3">Grade 10_12</string>
+    <string name="level_4">University</string>
+
     <string name="subject_math">Math</string>
     <string name="subject_science">Science</string>
     <string name="subject_history">History</string>
     <string name="subject_english">English</string>
+    <string name="subject_civic_education">Civic Education</string>
+    <string name="subject_gegraphy">Geography</string>
+    <string name="subject_physics">Physics</string>
+    <string name="subject_technology">Information Technology</string>
+    <string name="subject_chemistry">Chemistry</string>
+    <string name="subject_biology">Biology</string>
+    <string name="subject_literature">Literature</string>
+
     <string name="title_quiz_result">Quiz Result</string>
     <string name="label_congratulations">Congratulations!</string>
     <string name="label_score_detail">You scored %1$d out of %2$d</string>
