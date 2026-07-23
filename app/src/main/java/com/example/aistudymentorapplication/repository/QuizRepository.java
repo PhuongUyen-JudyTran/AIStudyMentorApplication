@@ -99,7 +99,7 @@ public class QuizRepository {
 
             if (!history.isEmpty()) {
 
-                contextBuilder.append("Đây là lịch sử học tập gần đây của học sinh:\n");
+                contextBuilder.append("Recent study history of the student:\n");
 
                 for (String question : history) {
                     contextBuilder.append("- ")
@@ -108,12 +108,12 @@ public class QuizRepository {
                 }
 
                 contextBuilder.append("\n")
-                        .append("Yêu cầu:\n")
-                        .append("- Chỉ sử dụng lịch sử trên nếu nó liên quan đến môn học và lớp được yêu cầu.\n")
-                        .append("- Nếu lịch sử liên quan, hãy ưu tiên khoảng 60-70% số câu hỏi từ các chủ đề đó.\n")
-                        .append("- 30-40% câu hỏi còn lại nên bao quát các kiến thức quan trọng khác.\n")
-                        .append("- Nếu lịch sử không liên quan thì bỏ qua và tạo bộ câu hỏi bình thường.\n")
-                        .append("- Không tạo lại các câu hỏi giống hệt học sinh đã hỏi.\n");
+                        .append("Requirements:\n")
+                        .append("- Use the above history only if it relates to the requested subject and level.\n")
+                        .append("- If history is relevant, prioritize 60-70% of questions based on those topics.\n")
+                        .append("- The remaining 30-40% should cover other important curriculum knowledge.\n")
+                        .append("- If history is irrelevant, ignore it and create a standard quiz.\n")
+                        .append("- Do not recreate identical questions from the student's history.\n");
             }
 
             String lang =
@@ -122,47 +122,47 @@ public class QuizRepository {
                             : "Vietnamese";
 
             String systemPrompt =
-                    "Bạn là AI Tutor - Gia sư học tập thông minh.\n\n"
+                    "You are AI Tutor - An intelligent study mentor.\n\n"
                             + contextBuilder.toString()
 
-                            + "\nNHIỆM VỤ:\n"
-                            + "Tạo "
+                            + "\nMISSION:\n"
+                            + "Create "
                             + questionCount
-                            + " câu hỏi trắc nghiệm (4 đáp án) môn "
+                            + " multiple-choice questions (4 options) for the subject "
                             + subject
-                            + " dành cho học sinh "
+                            + " for students at "
                             + level
-                            + " bằng ngôn ngữ "
+                            + " level in "
                             + lang
                             + ".\n\n"
 
-                            + "YÊU CẦU BẮT BUỘC:\n"
+                            + "MANDATORY REQUIREMENTS:\n"
 
-                            + "- Chỉ sử dụng kiến thức thuộc chương trình chính thức của "
+                            + "- Only use knowledge within the official curriculum for "
                             + level
                             + ".\n"
 
-                            + "- Tuyệt đối KHÔNG sử dụng kiến thức của lớp cao hơn.\n"
+                            + "- Absolutely DO NOT use knowledge from higher grades.\n"
 
-                            + "- Nếu lịch sử học tập liên quan đến môn học và đúng trình độ thì ít nhất 70% số câu hỏi phải dựa trên các chủ đề trong lịch sử.\n"
+                            + "- If the study history is relevant to the subject and level, at least 70% of questions must be based on those history topics.\n"
 
-                            + "- Nếu lịch sử học tập thuộc lớp cao hơn hoặc không liên quan đến môn học thì bỏ qua lịch sử đó.\n"
+                            + "- If the study history belongs to a higher grade or is irrelevant to the subject, ignore it.\n"
 
-                            + "- Không tạo lại đúng các câu hỏi đã xuất hiện trong lịch sử.\n"
+                            + "- Do not recreate exactly the same questions found in history.\n"
 
-                            + "- Mỗi câu có đúng 4 đáp án.\n"
+                            + "- Each question must have exactly 4 options.\n"
 
-                            + "- Chỉ có 1 đáp án đúng.\n"
+                            + "- Only 1 correct answer.\n"
 
-                            + "- Có lời giải thích ngắn gọn.\n"
+                            + "- Provide a concise explanation.\n"
 
-                            + "- Độ khó phù hợp với học sinh "
+                            + "- Difficulty level appropriate for "
                             + level
-                            + ".\n"
+                            + " students.\n"
 
-                            + "- Chỉ trả về JSON hợp lệ, không thêm markdown hoặc giải thích.\n\n"
+                            + "- Return only valid JSON, no markdown or extra text.\n\n"
 
-                            + "Định dạng JSON:\n"
+                            + "JSON Format:\n"
                             + "[\n"
                             + "  {\n"
                             + "    \"question\": \"...\",\n"
@@ -363,6 +363,6 @@ public class QuizRepository {
         String question;
         List<String> options;
         int correctIndex;
-        String explanation; // MỚI
+        String explanation;
     }
 }

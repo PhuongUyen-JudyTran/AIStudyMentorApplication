@@ -55,12 +55,13 @@ public class GeminiRequest {
         schema.type = "ARRAY";
         schema.items = new ObjectSchema();
         schema.items.type = "OBJECT";
-        schema.items.required = new String[]{"question", "options", "correctIndex"};
+        schema.items.required = new String[]{"question", "options", "correctIndex", "explanation"};
         schema.items.properties = new PropertiesSchema();
         
         schema.items.properties.question = new PropertySchema("STRING");
         schema.items.properties.options = new PropertySchema("ARRAY", new PropertySchema("STRING"));
         schema.items.properties.correctIndex = new PropertySchema("INTEGER");
+        schema.items.properties.explanation = new PropertySchema("STRING");
         
         return schema;
     }
@@ -110,6 +111,7 @@ public class GeminiRequest {
         public PropertySchema options;
         @SerializedName("correctIndex")
         public PropertySchema correctIndex;
+        public PropertySchema explanation;
     }
 
     public static class PropertySchema {
